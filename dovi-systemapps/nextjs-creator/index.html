@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>New Next.js Project</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fc;--surface:#fff;--accent:#6366f1;--accent-light:#eef2ff;
+  --text:#0f172a;--text-sec:#64748b;--text-dim:#94a3b8;
+  --border:#e2e8f0;--red:#ef4444;--green:#22c55e;--orange:#f97316;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--border);background:var(--surface)}
+.header h1{font-size:20px;font-weight:700}
+
+/* Cards */
+.content{padding:20px;max-width:480px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px}
+.card-title{font-size:15px;font-weight:600;margin-bottom:12px}
+.card-hint{font-size:12px;color:var(--text-dim);margin-top:8px;line-height:1.5}
+
+/* Form */
+.input-group{display:flex;flex-direction:column;gap:6px}
+.input-label{font-size:13px;font-weight:600;color:var(--text-sec)}
+.input{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:10px;
+  font-family:inherit;font-size:15px;color:var(--text);background:var(--bg);outline:none;transition:border-color .15s}
+.input:focus{border-color:var(--accent)}
+.input::placeholder{color:var(--text-dim)}
+.input-mono{font-family:'JetBrains Mono',monospace;font-size:13px}
+.path-preview{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-sec);
+  background:var(--bg);padding:8px 12px;border-radius:8px;margin-top:8px}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  padding:14px 20px;border-radius:12px;border:none;font-family:inherit;font-size:15px;
+  font-weight:600;cursor:pointer;transition:opacity .15s}
+.btn:active{opacity:.7}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-success{background:var(--green);color:#fff}
+
+/* Error */
+.error-bar{background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:12px 14px;
+  font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.error-bar.show{display:block}
+
+/* Log */
+.log-area{background:#1e293b;border-radius:12px;padding:16px;margin-top:12px;
+  max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.log-line{font-family:'JetBrains Mono',monospace;font-size:11px;color:#cbd5e1;line-height:1.6;
+  white-space:pre-wrap;word-break:break-all}
+.log-line:empty{display:none}
+
+/* Status */
+.status-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;margin:0 auto 16px;font-size:28px}
+.status-icon.success{background:#dcfce7;color:var(--green)}
+.status-icon.error{background:#fef2f2;color:var(--red)}
+.status-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:6px}
+.status-sub{font-size:13px;color:var(--text-sec);text-align:center;line-height:1.5}
+.status-path{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);
+  background:var(--accent-light);padding:10px 14px;border-radius:8px;margin-top:12px;text-align:center}
+
+/* Spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+.spinner-dark{border-color:rgba(99,102,241,.2);border-top-color:var(--accent)}
+
+/* Progress bar */
+.progress-wrap{margin-top:12px}
+.progress-label{font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:6px;
+  display:flex;justify-content:space-between}
+.progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s ease;width:0%}
+
+/* Screens */
+.screen{display:none}
+.screen.active{display:block}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>New Next.js Project</h1>
+</div>
+
+<div class="content">
+  <div id="error-bar" class="error-bar"></div>
+
+  <!-- Screen 1: Form -->
+  <div id="screen-form" class="screen active">
+    <div class="card">
+      <div class="card-title">Project Name</div>
+      <div class="input-group">
+        <input id="project-name" class="input input-mono" type="text"
+          placeholder="my-app" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <div id="path-preview" class="path-preview">/root/projects/my-app</div>
+      </div>
+      <div class="card-hint">
+        Lowercase letters, numbers, and hyphens only. Creates a Next.js App Router project with TypeScript.
+      </div>
+    </div>
+
+    <button id="btn-create" class="btn btn-primary" onclick="createProject()">
+      Create Project
+    </button>
+  </div>
+
+  <!-- Screen 2: Progress -->
+  <div id="screen-progress" class="screen">
+    <div class="card">
+      <div class="card-title">Setting up your project...</div>
+      <div class="progress-wrap">
+        <div class="progress-label">
+          <span id="progress-step">Initializing</span>
+          <span id="progress-pct"></span>
+        </div>
+        <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      </div>
+      <div id="log-area" class="log-area"></div>
+    </div>
+  </div>
+
+  <!-- Screen 3: Success -->
+  <div id="screen-success" class="screen">
+    <div class="card" style="text-align:center">
+      <div class="status-icon success">&#10003;</div>
+      <div class="status-title">Project Created</div>
+      <div class="status-sub">Your Next.js project is ready. Use Claude or Codex to set up a domain and start developing.</div>
+      <div id="success-path" class="status-path"></div>
+    </div>
+    <button class="btn btn-outline" onclick="reset()">Create Another</button>
+  </div>
+
+  <!-- Screen 4: Error -->
+  <div id="screen-error" class="screen">
+    <div class="card" style="text-align:center">
+      <div class="status-icon error">!</div>
+      <div class="status-title">Something went wrong</div>
+      <div id="error-detail" class="status-sub"></div>
+    </div>
+    <div id="error-log-area" class="log-area" style="margin-bottom:16px"></div>
+    <button class="btn btn-outline" onclick="reset()">Try Again</button>
+  </div>
+</div>
+
+<script>
+const params = new URLSearchParams(location.search);
+const TOKEN = params.get('token') || '';
+const API = location.origin;
+
+const nameInput = document.getElementById('project-name');
+const pathPreview = document.getElementById('path-preview');
+const errorBar = document.getElementById('error-bar');
+
+// Live path preview
+nameInput.addEventListener('input', () => {
+  const name = nameInput.value.trim() || 'my-app';
+  pathPreview.textContent = `/root/projects/${name}`;
+});
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(`screen-${id}`).classList.add('active');
+}
+
+function showError(msg) {
+  errorBar.textContent = msg;
+  errorBar.classList.add('show');
+}
+
+function clearError() {
+  errorBar.classList.remove('show');
+}
+
+function reset() {
+  nameInput.value = '';
+  pathPreview.textContent = '/root/projects/my-app';
+  clearError();
+  showScreen('form');
+}
+
+// Progress tracking keywords
+const STEPS = [
+  { label: 'Creating project', pct: 10, re: /Creating|Initializing/i },
+  { label: 'Installing dependencies', pct: 30, re: /Installing|npm|packages|added/i },
+  { label: 'Setting up TypeScript', pct: 70, re: /TypeScript|tsconfig|types/i },
+  { label: 'Finalizing', pct: 90, re: /Success|Initialized|ready/i },
+];
+
+function createProject() {
+  clearError();
+  const name = nameInput.value.trim();
+
+  // Validate
+  if (!name) { showError('Please enter a project name.'); return; }
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(name)) {
+    showError('Name must start with a letter/number and contain only lowercase letters, numbers, and hyphens.');
+    return;
+  }
+  if (name.length > 64) { showError('Name is too long (max 64 characters).'); return; }
+
+  const projectPath = `/root/projects/${name}`;
+  const cmd = `mkdir -p /root/projects && npx create-next-app@latest ${projectPath} --yes --app --ts --use-npm --src-dir --no-tailwind --no-eslint --import-alias "@/*"`;
+
+  showScreen('progress');
+
+  const logArea = document.getElementById('log-area');
+  const progressStep = document.getElementById('progress-step');
+  const progressFill = document.getElementById('progress-fill');
+  const progressPct = document.getElementById('progress-pct');
+  logArea.innerHTML = '';
+
+  let currentStep = 0;
+  progressFill.style.width = '5%';
+
+  function appendLog(line) {
+    const el = document.createElement('div');
+    el.className = 'log-line';
+    el.textContent = line;
+    logArea.appendChild(el);
+    logArea.scrollTop = logArea.scrollHeight;
+
+    // Advance progress based on keywords
+    for (let i = currentStep; i < STEPS.length; i++) {
+      if (STEPS[i].re.test(line)) {
+        currentStep = i;
+        progressStep.textContent = STEPS[i].label;
+        progressFill.style.width = STEPS[i].pct + '%';
+        progressPct.textContent = STEPS[i].pct + '%';
+        break;
+      }
+    }
+  }
+
+  // Stream via XHR (SSE from /api/apps/install)
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', `${API}/api/apps/install`);
+  xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Authorization', `Bearer ${TOKEN}`);
+
+  let processed = 0;
+  let result = { ok: false };
+
+  xhr.onprogress = () => {
+    const text = xhr.responseText.slice(processed);
+    processed = xhr.responseText.length;
+    for (const line of text.split('\n')) {
+      if (!line.startsWith('data: ')) continue;
+      try {
+        const event = JSON.parse(line.slice(6));
+        if (event.type === 'output' && event.data) appendLog(event.data);
+        else if (event.type === 'done') result = { ok: event.ok };
+        else if (event.type === 'error') appendLog(`Error: ${event.message}`);
+      } catch {}
+    }
+  };
+
+  xhr.onload = () => {
+    // Process remaining
+    if (processed < xhr.responseText.length) {
+      const text = xhr.responseText.slice(processed);
+      for (const line of text.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const event = JSON.parse(line.slice(6));
+          if (event.type === 'output' && event.data) appendLog(event.data);
+          else if (event.type === 'done') result = { ok: event.ok };
+        } catch {}
+      }
+    }
+
+    if (result.ok) {
+      progressFill.style.width = '100%';
+      progressPct.textContent = '100%';
+      progressStep.textContent = 'Done';
+      setTimeout(() => {
+        document.getElementById('success-path').textContent = projectPath;
+        showScreen('success');
+      }, 500);
+    } else {
+      // Show error with log
+      document.getElementById('error-detail').textContent = 'The project could not be created. Check the log below for details.';
+      const errorLog = document.getElementById('error-log-area');
+      errorLog.innerHTML = logArea.innerHTML;
+      showScreen('error');
+    }
+  };
+
+  xhr.onerror = () => {
+    document.getElementById('error-detail').textContent = 'Network error — could not reach the server.';
+    document.getElementById('error-log-area').innerHTML = '';
+    showScreen('error');
+  };
+
+  xhr.timeout = 300000; // 5 min
+  xhr.ontimeout = () => {
+    document.getElementById('error-detail').textContent = 'Request timed out after 5 minutes.';
+    document.getElementById('error-log-area').innerHTML = logArea.innerHTML;
+    showScreen('error');
+  };
+
+  xhr.send(JSON.stringify({ cmd }));
+}
+</script>
+</body>
+</html>
